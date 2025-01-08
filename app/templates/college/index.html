@@ -1,11 +1,170 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Document</title>
-	</head>
-	<body>
-		<h1>College</h1>
-	</body>
-</html>
+{%- extends "layouts/master_layout.html" %} {% import "bootstrap/utils.html" as
+utils %} {% import "bootstrap/wtf.html" as wtf %} {% block content %}
+<div class="container">
+	<nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item active" aria-current="page">Colleges</li>
+			<button
+				type="button"
+				class="btn btn-primary"
+				data-toggle="modal"
+				data-target="#addCollegeModal">
+				Add College
+			</button>
+		</ol>
+	</nav>
+
+	{% with messages = get_flashed_messages(with_categories=true) %} {% if
+	messages %} {% for category, message in messages %}
+	<div class="flash {{ category }}">
+		<div class="flash-text">{{ message }}</div>
+	</div>
+	{% endfor %} {% endif %} {% endwith %}
+
+	<div class="row mt-2">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>College Name</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for college in colleges %}
+				<tr>
+					<td>{{ college.id }}</td>
+					<td>{{ college.name }}</td>
+					<td>
+						<button
+							type="button"
+							class="btn btn-info btn-sm"
+							data-toggle="modal"
+							data-target="#editCollegeModal{{ college.id }}">
+							Edit
+						</button>
+						<form
+							action="{{ url_for('college.delete', id=college.id) }}"
+							method="POST"
+							style="display: inline">
+							<input
+								type="hidden"
+								name="csrf_token"
+								value="{{ csrf_token() }}" />
+							<button
+								type="submit"
+								class="btn btn-danger btn-sm"
+								onclick="return confirm('Are you sure you want to delete this college?')">
+								Delete
+							</button>
+						</form>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<div
+		class="modal fade"
+		id="addCollegeModal"
+		tabindex="-1"
+		role="dialog"
+		aria-labelledby="addCollegeModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="addCollegeModalLabel">Add New College</h5>
+					<button
+						type="button"
+						class="close"
+						data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form
+						method="POST"
+						action="{{ url_for('college.add') }}"
+						id="addCollegeForm">
+						{{ form.hidden_tag() }}
+						<div class="form-group">
+							<label for="name">College Name</label>
+							{{ form.name(class="form-control") }}
+						</div>
+						<button
+							type="submit"
+							class="btn btn-primary"
+							onclick="return confirmAdd()">
+							Add
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{% for college in colleges %}
+	<div
+		class="modal fade"
+		id="editCollegeModal{{ college.id }}"
+		tabindex="-1"
+		role="dialog"
+		aria-labelledby="editCollegeModalLabel{{ college.id }}"
+		aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="editCollegeModalLabel{{ college.id }}">
+						Edit College
+					</h5>
+					<button
+						type="button"
+						class="close"
+						data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form
+						id="editForm{{ college.id }}"
+						method="POST"
+						action="{{ url_for('college.edit', id=college.id) }}">
+						{{ form.hidden_tag() }}
+						<div class="form-group">
+							<label for="name">College Name</label>
+							<input
+								type="text"
+								name="name"
+								class="form-control"
+								value="{{ college.name }}"
+								required />
+						</div>
+						<button
+							type="submit"
+							class="btn btn-primary"
+							form="editForm{{ college.id }}"
+							onclick="return confirmEdit()">
+							Save Changes
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% endblock %} {% block scripts %} {{ super() }}
+<script>
+	function confirmAdd() {
+		return confirm("Are you sure you want to add this college?");
+	}
+
+	function confirmEdit() {
+		return confirm("Are you sure you want to save these changes?");
+	}
+</script>
+{% endblock %}

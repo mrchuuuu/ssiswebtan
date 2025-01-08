@@ -1,0 +1,319 @@
+/*!
+ * Start Bootstrap - Freelancer v3.3.7+1 (http://startbootstrap.com/template-overviews/freelancer)
+ * Copyright 2013-2016 Start Bootstrap
+ * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
+ */
+:root {
+	--primary: #2196f3;
+	--primary-light: #64b5f6;
+	--background: #121212;
+	--surface: #242424;
+	--surface-2: #2c2c2c;
+	--error: #cf6679;
+	--success: #03dac6;
+	--text-primary: rgba(255, 255, 255, 0.87);
+	--text-secondary: rgba(255, 255, 255, 0.6);
+}
+
+body {
+	padding-top: 64px;
+	background-color: var(--background);
+	color: var(--text-primary);
+	font-family: "Roboto", sans-serif;
+	-webkit-font-smoothing: antialiased;
+}
+
+.navbar-default {
+	background-color: var(--surface);
+	border: none;
+	box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+		0 1px 10px 0 rgba(0, 0, 0, 0.12);
+	height: 64px;
+	display: flex;
+	align-items: center;
+}
+
+.navbar-default .navbar-brand {
+	color: var(--primary);
+	font-weight: 500;
+	font-size: 20px;
+	height: 64px;
+	line-height: 34px;
+	letter-spacing: 0.15px;
+}
+
+.navbar-default .navbar-nav > li > a {
+	color: var(--text-primary);
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.1px;
+	padding: 22px 16px;
+	position: relative;
+	transition: color 0.2s ease;
+}
+
+.navbar-default .navbar-nav > li > a::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	background-color: var(--primary);
+	transform: scaleX(0);
+	transition: transform 0.2s ease;
+}
+
+.navbar-default .navbar-nav > li > a:hover::after,
+.navbar-default .navbar-nav > .active > a::after {
+	transform: scaleX(1);
+}
+
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+	background-color: transparent;
+	color: var(--primary);
+}
+
+.table {
+	background-color: var(--surface);
+	border-radius: 8px;
+	box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14);
+	margin-top: 24px;
+	border-collapse: separate;
+	border-spacing: 0;
+}
+
+.table > thead > tr > th {
+	background-color: var(--surface-2);
+	border-bottom: none;
+	color: var(--text-primary);
+	padding: 16px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.1px;
+	font-size: 14px;
+}
+
+.table > tbody > tr > td {
+	padding: 16px;
+	border-top: 1px solid rgba(255, 255, 255, 0.12);
+	color: var(--text-primary);
+	vertical-align: middle;
+}
+
+.table > tbody > tr {
+	transition: background-color 0.2s ease;
+}
+
+.table > tbody > tr:hover {
+	background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* Button styles */
+.btn {
+	text-transform: uppercase;
+	font-weight: 500;
+	letter-spacing: 0.4px;
+	border-radius: 4px;
+	padding: 8px 24px;
+	transition: all 0.2s ease;
+	box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+		0 1px 5px 0 rgba(0, 0, 0, 0.12);
+}
+
+.btn-primary {
+	background-color: var(--primary);
+	border: none;
+}
+
+.btn-primary:hover {
+	background-color: var(--primary-light);
+	box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+		0 1px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+/* Card styles */
+.content-card {
+	background-color: var(--surface);
+	border-radius: 8px;
+	padding: 24px;
+	margin-bottom: 24px;
+	box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14);
+}
+
+/* Form styles */
+.form-control {
+	background-color: var(--surface-2);
+	border: none;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.42);
+	border-radius: 4px 4px 0 0;
+
+	color: var(--text-primary);
+	transition: all 0.2s ease;
+}
+
+.form-control:focus {
+	background-color: var(--surface-2);
+	border-bottom: 2px solid var(--primary);
+	box-shadow: none;
+}
+
+/* Breadcrumb styles */
+.breadcrumb {
+	background-color: transparent;
+	padding: 0;
+	margin: 16px 0;
+}
+
+.breadcrumb > li + li:before {
+	color: var(--text-secondary);
+}
+
+.breadcrumb > .active {
+	color: var(--text-primary);
+}
+
+/* Alert styles */
+.alert {
+	border-radius: 4px;
+	padding: 16px;
+	border: none;
+	box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+	display: flex;
+	align-items: center;
+}
+
+.alert-success {
+	background-color: rgba(3, 218, 198, 0.15);
+	color: var(--success);
+}
+
+.alert-danger {
+	background-color: rgba(207, 102, 121, 0.15);
+	color: var(--error);
+}
+.breadcrumb-item.active {
+	color: var(--text-primary);
+	align-self: center;
+	font-size: 2rem;
+	font-weight: bold;
+}
+@media (max-width: 768px) {
+	.navbar-default .navbar-toggle {
+		border: none;
+		margin-top: 15px;
+	}
+
+	.navbar-default .navbar-toggle:hover,
+	.navbar-default .navbar-toggle:focus {
+		background-color: rgba(255, 255, 255, 0.04);
+	}
+
+	.navbar-default .navbar-toggle .icon-bar {
+		background-color: var(--text-primary);
+	}
+
+	.navbar-default .navbar-collapse {
+		border: none;
+		box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14);
+	}
+
+	.navbar-nav {
+		margin: 0;
+		background-color: var(--surface);
+	}
+}
+
+/* Add ripple effect for buttons */
+.btn {
+	position: relative;
+	overflow: hidden;
+}
+
+.btn:after {
+	content: "";
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	pointer-events: none;
+	background-image: radial-gradient(
+		circle,
+		rgba(255, 255, 255, 0.3) 10%,
+		transparent 10.01%
+	);
+	background-repeat: no-repeat;
+	background-position: 50%;
+	transform: scale(10, 10);
+	opacity: 0;
+	transition: transform 0.5s, opacity 1s;
+}
+
+.btn:active:after {
+	transform: scale(0, 0);
+	opacity: 0.2;
+	transition: 0s;
+}
+.modal-content {
+	background-color: var(--surface);
+	border-radius: 8px;
+	box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+		0 1px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.btn-secondary {
+	background-color: var(--surface-2);
+	border: none;
+	color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+	background-color: rgba(255, 255, 255, 0.5);
+}
+
+.modal-header {
+	border-bottom: none;
+	display: flex;
+	justify-content: space-around;
+	margin: 0;
+}
+
+.modal-title {
+	color: var(--text-primary);
+	font-size: 24px;
+	font-weight: 500;
+	width: 100%;
+	letter-spacing: 0.1px;
+}
+
+button.close {
+	color: #ffffff;
+	font-size: large;
+}
+
+button.close:hover {
+	color: var(--text-primary);
+}
+
+ol.breadcrumb {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.flash.success {
+	padding: 10px 20px;
+	border-radius: 4px;
+	background-color: #8dd3a8;
+	color: #355e45;
+}
+
+.flash.danger {
+	padding: 10px 20px;
+	border-radius: 4px;
+	background-color: #fb8072;
+	color: #7f3b3b;
+}

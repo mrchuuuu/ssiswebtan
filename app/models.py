@@ -1,0 +1,259 @@
+from app import mysql
+
+
+class Student(object):
+    def __init__(
+        self, id, name, yearlevel, enrollmentStatus, program, programName=None, image=None
+    ):
+        self.id = id
+        self.name = name
+        self.yearlevel = yearlevel
+        self.enrollmentStatus = enrollmentStatus
+        self.program = program
+        self.programName = programName
+        self.image = image
+
+    @classmethod
+    def get_all_students(cls):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = """SELECT s.id, s.name, s.yearlevel, s.enrollmentStatus, s.program, p.name as programName
+                    FROM student s 
+                    LEFT JOIN program p ON s.program = p.courseCode"""
+            cursor.execute(sql)
+            results = cursor.fetchall()
+            students = []
+            for result in results:
+                student = Student(
+                    id=result[0],
+                    name=result[1],
+                    yearlevel=result[2],
+                    enrollmentStatus=result[3],
+                    program=result[4],
+                    programName=result[5],  
+                )
+                students.append(student)
+            return students
+        except Exception as e:
+            print(f"Error fetching students: {e}")
+            return []
+    
+    @classmethod
+    def get_student_by_id(cls, student_id):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "SELECT * from student WHERE id = %s"
+            cursor.execute(sql, (student_id,))
+            result = cursor.fetchone()
+            return cls(*result) if result else None
+        except Exception as e:
+            print(f"Error fetching student by ID: {e}")
+            return None
+
+    def add(self):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "INSERT INTO student (id, name, yearlevel, enrollmentStatus, program) VALUES (%s, %s, %s, %s, %s)"
+            cursor.execute(
+                sql,
+                (
+                    self.id,
+                    self.name,
+                    self.yearlevel,
+                    self.enrollmentStatus,
+                    self.program,
+                ),
+            )
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            if e.args[0] == 1062:  # Duplicate entry error code
+                return {"error": "Duplicate entry for student ID.", "code": 400}
+            else:
+                return {"error": f"Error adding student: {str(e)}", "code": 500}
+
+
+    @classmethod
+    def update_student(cls, student_id, student_data):
+        try:
+            cursor = mysql.connection.cursor()
+            print(student_data)
+            sql = """UPDATE student 
+                     SET id = %s, name = %s, yearlevel = %s, enrollmentStatus = %s, program = %s
+                     WHERE id = %s"""
+            cursor.execute(
+                sql,
+                (
+                    student_data["id"],
+                    student_data["name"],
+                    student_data["yearLevel"],
+                    student_data["enrollmentStatus"],
+                    student_data["program"],
+                    student_id,
+                ),
+            )
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error updating student: {e}")
+            if e.args[0] == 1062:
+                error = {"error": "Duplicate entry for student ID.", "code": 400}
+            else:
+                error = {"error": f"Error updating student: {str(e)}", "code": 500}
+            return error
+
+    @classmethod
+    def delete_student(cls, student_id):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "DELETE FROM student WHERE id = %s"
+            cursor.execute(sql, (student_id,))
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error deleting student: {e}")
+            return False
+        
+
+class College(object):
+    def __init__(self, id=None, name=None):
+        self.id = id
+        self.name = name
+
+    def add(self):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "INSERT INTO college (name) VALUES (%s)"
+            cursor.execute(sql, (self.name,))
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error adding college: {e}")
+            return False
+
+    @classmethod
+    def get_all(cls):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "SELECT * FROM college"
+            cursor.execute(sql)
+            results = cursor.fetchall()
+            colleges = []
+            for result in results:
+                college = College(id=result[0], name=result[1])
+                colleges.append(college)
+            return colleges
+        except Exception as e:
+            print(f"Error fetching colleges: {e}")
+            return []
+
+    @classmethod
+    def get_by_id(cls, id):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "SELECT * FROM college WHERE id = %s"
+            cursor.execute(sql, (id,))
+            result = cursor.fetchone()
+            if result:
+                return College(id=result[0], name=result[1])
+            return None
+        except Exception as e:
+            print(f"Error fetching college: {e}")
+            return None
+
+    def update(self):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "UPDATE college SET name = %s WHERE id = %s"
+            cursor.execute(sql, (self.name, self.id))
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error updating college: {e}")
+            return False
+
+    @classmethod
+    def delete(cls, id):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "DELETE FROM college WHERE id = %s"
+            cursor.execute(sql, (id,))
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error deleting college: {e}")
+            return False
+
+
+class Program:
+    def __init__(self, courseCode=None, name=None, college=None):
+        self.courseCode = courseCode
+        self.name = name
+        self.college = college
+
+    def add(self):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "INSERT INTO program (courseCode, name, college) VALUES (%s, %s, %s)"
+            cursor.execute(sql, (self.courseCode, self.name, self.college))
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error adding program: {e}")
+            return False
+
+    @classmethod
+    def get_all(cls):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "SELECT p.courseCode, p.name, c.name AS college_name FROM program p LEFT JOIN college c ON p.college = c.id"
+            cursor.execute(sql)
+            results = cursor.fetchall()
+            programs = []
+            for result in results:
+                program = Program(
+                    courseCode=result[0], name=result[1], college=result[2]
+                )
+                programs.append(program)
+            return programs
+        except Exception as e:
+            print(f"Error fetching programs: {e}")
+            return []
+
+    @classmethod
+    def get_by_courseCode(cls, courseCode):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "SELECT * FROM program WHERE courseCode = %s"
+            cursor.execute(sql, (courseCode,))
+            result = cursor.fetchone()
+            if result:
+                return Program(courseCode=result[0], name=result[1], college=result[2])
+            return None
+        except Exception as e:
+            print(f"Error fetching program: {e}")
+            return None
+
+    def update(self):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "UPDATE program SET name = %s, college = %s WHERE courseCode = %s"
+            cursor.execute(sql, (self.name, self.college, self.courseCode))
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error updating program: {e}")
+            return False
+
+    @classmethod
+    def delete(cls, courseCode):
+        try:
+            cursor = mysql.connection.cursor()
+            sql = "DELETE FROM program WHERE courseCode = %s"
+            cursor.execute(sql, (courseCode,))
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error deleting program: {e}")
+            return False
+

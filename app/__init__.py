@@ -1,10 +1,26 @@
 from flask import Flask
+from flask_mysqldb import MySQL
 from config import SECRET_KEY
+from flask_wtf.csrf import CSRFProtect
+from config import DB_HOST, DB_USER, DB_NAME,DB_PASSWORD
+from flask_bootstrap import Bootstrap
+
+mysql = MySQL()
+bootstrap = Bootstrap()
+
+
 def create_app(test_config=None):
-    app = Flask(__name__)
+    app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY=SECRET_KEY
+        SECRET_KEY=SECRET_KEY,
+        MYSQL_HOST=DB_HOST,
+        MYSQL_USER=DB_USER,
+        MYSQL_DB=DB_NAME,        
+        MYSQL_PASSWORD=DB_PASSWORD
     )
+    bootstrap.init_app(app)
+    mysql.init_app(app)
+    CSRFProtect(app)
 
     from .student import student_bp
     from .program import program_bp

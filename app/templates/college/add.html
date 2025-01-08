@@ -1,0 +1,13 @@
+{% extends "layouts/master_layout.html" %} {% import "bootstrap/wtf.html" as wtf
+%} {% block content %}
+<div class="container">
+	<div class="row mt-2">
+		<div class="col-md-6 offset-md-3">
+			<div class="content-card">
+				<h2 class="text-center">Add College</h2>
+				{{ wtf.quick_form(form) }}
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
