@@ -1,9 +1,10 @@
 from app import mysql
-
+import cloudinary
+import cloudinary.uploader
 
 class Student(object):
     def __init__(
-        self, id, name, yearlevel, enrollmentStatus, program, programName=None, image=None
+        self, id, name, yearlevel, enrollmentStatus, program, programName=None, public_id=None
     ):
         self.id = id
         self.name = name
@@ -11,18 +12,19 @@ class Student(object):
         self.enrollmentStatus = enrollmentStatus
         self.program = program
         self.programName = programName
-        self.image = image
+        self.public_id = public_id
 
     @classmethod
     def get_all_students(cls):
         try:
             cursor = mysql.connection.cursor()
-            sql = """SELECT s.id, s.name, s.yearlevel, s.enrollmentStatus, s.program, p.name as programName
-                    FROM student s 
-                    LEFT JOIN program p ON s.program = p.courseCode"""
+            sql = """SELECT s.*, p.name as programName
+                     FROM student s 
+                     LEFT JOIN program p ON s.program = p.courseCode"""
             cursor.execute(sql)
             results = cursor.fetchall()
             students = []
+            print(results)
             for result in results:
                 student = Student(
                     id=result[0],
@@ -30,14 +32,16 @@ class Student(object):
                     yearlevel=result[2],
                     enrollmentStatus=result[3],
                     program=result[4],
-                    programName=result[5],  
+                    programName=result[6],
+                    public_id=result[5],
                 )
+                student.image = cls.get_image_url(student.public_id)
                 students.append(student)
             return students
         except Exception as e:
             print(f"Error fetching students: {e}")
             return []
-    
+
     @classmethod
     def get_student_by_id(cls, student_id):
         try:
@@ -45,15 +49,34 @@ class Student(object):
             sql = "SELECT * from student WHERE id = %s"
             cursor.execute(sql, (student_id,))
             result = cursor.fetchone()
-            return cls(*result) if result else None
+            if result:
+                student = cls(*result)
+                student.image = cls.get_image_url(student.public_id)
+                return student
+            else:
+                return None
         except Exception as e:
             print(f"Error fetching student by ID: {e}")
             return None
 
-    def add(self):
+    @classmethod
+    def get_image_url(cls, public_id):
+        if public_id:
+            transform_options = {
+                'width': 320,
+                'height': 320,
+                'crop': 'fill',  
+                'gravity': 'center',  
+            }
+            return cloudinary.CloudinaryImage(public_id).build_url(**transform_options)
+        else:
+            return None  # Or a default image URL if no image is associated
+    def add(self, image_file):
         try:
+            upload_result = cloudinary.uploader.upload(image_file)
+            public_id = upload_result['public_id']
             cursor = mysql.connection.cursor()
-            sql = "INSERT INTO student (id, name, yearlevel, enrollmentStatus, program) VALUES (%s, %s, %s, %s, %s)"
+            sql = "INSERT INTO student (id, name, yearlevel, enrollmentStatus, program, image) VALUES (%s, %s, %s, %s, %s, %s)"
             cursor.execute(
                 sql,
                 (
@@ -62,6 +85,7 @@ class Student(object):
                     self.yearlevel,
                     self.enrollmentStatus,
                     self.program,
+                    public_id  
                 ),
             )
             mysql.connection.commit()
@@ -74,13 +98,25 @@ class Student(object):
 
 
     @classmethod
-    def update_student(cls, student_id, student_data):
+    def update_student(cls, student_id, student_data, image_file=None):
         try:
             cursor = mysql.connection.cursor()
-            print(student_data)
+
+            # Check if a new image is provided
+            if image_file:
+                # Upload the new image to Cloudinary
+                upload_result = cloudinary.uploader.upload(image_file)
+                public_id = upload_result['public_id']
+
+                # If there's an old image, delete it from Cloudinary
+                if student_data['old_image']:
+                    cloudinary.uploader.destroy(student_data['old_image'])
+            else:
+                public_id = student_data.get('old_image')
+
             sql = """UPDATE student 
-                     SET id = %s, name = %s, yearlevel = %s, enrollmentStatus = %s, program = %s
-                     WHERE id = %s"""
+                    SET id = %s, name = %s, yearlevel = %s, enrollmentStatus = %s, program = %s, image = %s
+                    WHERE id = %s"""
             cursor.execute(
                 sql,
                 (
@@ -89,6 +125,7 @@ class Student(object):
                     student_data["yearLevel"],
                     student_data["enrollmentStatus"],
                     student_data["program"],
+                    public_id,
                     student_id,
                 ),
             )
@@ -101,19 +138,30 @@ class Student(object):
             else:
                 error = {"error": f"Error updating student: {str(e)}", "code": 500}
             return error
-
+    
     @classmethod
     def delete_student(cls, student_id):
         try:
+            # Fetch the student first to get the image's public ID
+            student = cls.get_student_by_id(student_id)
+            if not student:
+                return False
+
             cursor = mysql.connection.cursor()
             sql = "DELETE FROM student WHERE id = %s"
             cursor.execute(sql, (student_id,))
             mysql.connection.commit()
+
+            # Delete the associated image from Cloudinary
+            if student.public_id:
+                cloudinary.uploader.destroy(student.public_id)
+
             return True
         except Exception as e:
             print(f"Error deleting student: {e}")
             return False
-        
+
+
 
 class College(object):
     def __init__(self, id=None, name=None):

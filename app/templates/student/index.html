@@ -27,6 +27,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>Image</th>
                     <th>ID</th>
                     <th>Name</th>
                     <th>Year Level</th>
@@ -38,11 +39,19 @@
             <tbody>
                 {% for student in students %}
                 <tr>
+                    <td>
+                        {% if student.image %}
+                            <img src="{{ student.image }}" alt="Student Image" class="student-image">
+                        {% else %}
+                            No Image
+                        {% endif %}
+                    </td>
                     <td>{{ student.id }}</td>
                     <td>{{ student.name }}</td>
                     <td>{{ student.yearlevel }}</td>
                     <td>{{ student.enrollmentStatus }}</td>
                     <td>{{ student.programName }}</td>
+                    
                     <td>
                         <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#editStudentModal{{ student.id | replace(' ', '_') }}">
                             Edit
@@ -70,7 +79,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" action="{{ url_for('student.add_student') }}" id="addStudentForm" onsubmit="return confirmAdd()">
+                    <form method="POST" action="{{ url_for('student.add_student') }}" id="addStudentForm" onsubmit="return confirmAdd()" enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
                         <div class="form-group">
                             <label for="idYear">ID Year</label>
@@ -96,6 +105,10 @@
                             <label for="program">Program</label>
                             {{ form.program(class="form-control", required=true) }}
                         </div>
+                        <div class="form-group">
+                            <label for="image">Image</label>
+                            {{ form.image(class="form-control", required=true) }}
+                        </div>
                         <button type="submit" class="btn btn-primary">Add</button>
                     </form>
                 </div>
@@ -114,7 +127,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="editForm{{ student.id }}" method="POST" action="{{ url_for('student.edit_student', id=student.id) }}">
+                    <form id="editForm{{ student.id }}" method="POST" action="{{ url_for('student.edit_student', id=student.id) }}" enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
                         <div class="form-group">
                             <label for="idYear">ID Year</label>
@@ -152,6 +165,14 @@
                                 {% endfor %}
                             </select>
                         </div>
+                         <div class="form-group">
+                                <label for="image">Image</label>
+                                <input type="file" name="image" class="form-control" accept="image/*">
+                                {% if student.image %}
+                                    <img src="{{ student.image }}" alt="Current Image" style="width: 100px; height: auto;">
+                                    <input type="hidden" name="old_image" value="{{ student.public_id }}">
+                                {% endif %}
+                            </div>
                         <button type="submit" class="btn btn-primary" form="editForm{{ student.id }}" onclick="return confirmEdit()">Save Changes</button>
                     </form>
                 </div>
